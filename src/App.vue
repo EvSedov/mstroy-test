@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import AgGridExample from "./components/AgGridExample.vue";
 import { TableMode } from "./types/TableMode";
 import { TreeStore } from "./store/TreeStore";
 
-const testData = ref<any[]>([]);
+const testData = ref<any[] | null>(null);
 const loadedFiles = ref<{ name: string; data: any[]; date: string }[]>([]);
 const selectedDatasetName = ref<string | null>(null);
 const isDropdownOpen = ref(false);
@@ -83,7 +83,19 @@ const selectDataset = (fileName: string) => {
     testData.value = selected.data;
     selectedDatasetName.value = fileName;
   }
-  isDropdownOpen.value = false; // Закрываем выпадающий список после выбора
+  isDropdownOpen.value = false;
+};
+
+const removeDataset = (fileName: string) => {
+  loadedFiles.value = loadedFiles.value.filter((f) => f.name !== fileName);
+  if (selectedDatasetName.value === fileName) {
+    testData.value = loadedFiles.value.length
+      ? loadedFiles.value[0].data
+      : null;
+    selectedDatasetName.value = loadedFiles.value.length
+      ? loadedFiles.value[0].name
+      : null;
+  }
 };
 
 const toggleDropdown = () => {
@@ -98,6 +110,13 @@ const closeDropdown = (event: FocusEvent) => {
     isDropdownOpen.value = false;
   }
 };
+
+watch(testData, () => {
+  if (!testData.value) {
+    isDropdownOpen.value = false;
+    currentMode.value = TableMode.VIEW;
+  }
+});
 </script>
 
 <template>
@@ -115,8 +134,8 @@ const closeDropdown = (event: FocusEvent) => {
         <span>Режим:</span>
         <button
           @click="toggleMode"
-          :class="{ active: true, disabled: testData.length === 0 }"
-          :disabled="testData.length === 0"
+          :class="{ active: true, disabled: testData?.length === 0 }"
+          :disabled="testData?.length === 0"
         >
           {{ currentMode === TableMode.VIEW ? "просмотра" : "редактирования" }}
         </button>
@@ -132,9 +151,9 @@ const closeDropdown = (event: FocusEvent) => {
         <div
           class="dataset-select-wrapper"
           tabindex="0"
-          :class="{ disabled: testData.length === 0 }"
-          @click="testData.length > 0 && toggleDropdown()"
-          @blur="testData.length > 0 && closeDropdown($event)"
+          :class="{ disabled: testData?.length === 0 }"
+          @click="testData && testData?.length > 0 && toggleDropdown()"
+          @blur="testData && testData?.length > 0 && closeDropdown($event)"
         >
           <div class="current-selection">
             <span class="dataset-name">{{
@@ -159,6 +178,12 @@ const closeDropdown = (event: FocusEvent) => {
                   {{ file.name }}
                   <span class="warning-icon">&#9888;</span>
                 </span>
+                <span
+                  v-if="currentMode === TableMode.EDIT"
+                  class="delete-icon"
+                  @click.stop="removeDataset(file.name)"
+                  >&times;</span
+                >
               </div>
             </li>
           </ul>
@@ -166,7 +191,7 @@ const closeDropdown = (event: FocusEvent) => {
       </div>
     </header>
 
-    <div v-if="testData.length > 0" class="content-area">
+    <div v-if="testData && testData.length > 0" class="content-area">
       <AgGridExample :mode="currentMode" :data="testData" />
     </div>
 
@@ -357,8 +382,9 @@ const closeDropdown = (event: FocusEvent) => {
 
 .file-info {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 .file-name {
@@ -372,6 +398,17 @@ const closeDropdown = (event: FocusEvent) => {
 .warning-icon {
   color: #ffc107;
   font-size: 16px;
+}
+
+.delete-icon {
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.delete-icon:hover {
+  color: #c82333;
 }
 
 .add-new-file-item {
