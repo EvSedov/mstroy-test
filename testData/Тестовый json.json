@@ -1,0 +1,9 @@
+[
+  { "id": 1, "parent": null, "label": "Тест 1" },
+  { "id": "2", "parent": null, "label": "Тест 2" },
+  { "id": 3, "parent": null, "label": "Тест 3" },
+  { "id": 4, "parent": null, "label": "Тест 4" },
+  { "id": 5, "parent": null, "label": "Тест 5" },
+  { "id": 6, "parent": null, "label": "Тест 6" },
+  { "id": 7, "parent": null, "label": "Тест 7" }
+]
