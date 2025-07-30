@@ -4,15 +4,17 @@ import AgGridExample from "./components/AgGridExample.vue";
 import { TableMode } from "./types/TableMode";
 import { TreeStore } from "./store/TreeStore";
 
-// Тестовые данные
 const testData = ref<any[]>([]);
-const loadedFiles = ref<
-  { name: string; data: any[]; date: string; status: string }[]
->([]);
+const loadedFiles = ref<{ name: string; data: any[]; date: string }[]>([]);
 const selectedDatasetName = ref<string | null>(null);
 const isDropdownOpen = ref(false);
 
 const currentMode = ref(TableMode.VIEW);
+
+const toggleMode = () => {
+  currentMode.value =
+    currentMode.value === TableMode.VIEW ? TableMode.EDIT : TableMode.VIEW;
+};
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const treeStore = new TreeStore([]);
@@ -47,7 +49,6 @@ const handleFileChange = (event: Event) => {
           name: file.name,
           data: formattedData,
           date: dateString,
-          status: "Временный файл", // Указываем, что файл временный
         };
 
         const existingIndex = loadedFiles.value.findIndex(
@@ -56,12 +57,12 @@ const handleFileChange = (event: Event) => {
         if (existingIndex !== -1) {
           loadedFiles.value.splice(existingIndex, 1);
         }
-        loadedFiles.value.unshift(newFileEntry); // Добавляем в начало
+        loadedFiles.value.unshift(newFileEntry);
         if (loadedFiles.value.length > 10) {
-          loadedFiles.value.pop(); // Удаляем старейший, если больше 10
+          loadedFiles.value.pop();
         }
         selectedDatasetName.value = file.name;
-        // Очищаем input, чтобы можно было снова выбрать тот же файл
+
         if (fileInput.value) {
           fileInput.value.value = "";
         }
@@ -113,21 +114,11 @@ const closeDropdown = (event: FocusEvent) => {
       <div class="mode-controls">
         <span>Режим:</span>
         <button
-          @click="currentMode = TableMode.VIEW"
-          :class="{
-            active: currentMode === TableMode.VIEW,
-            disabled: testData.length === 0,
-          }"
+          @click="toggleMode"
+          :class="{ active: true, disabled: testData.length === 0 }"
           :disabled="testData.length === 0"
         >
-          просмотра
-        </button>
-        <button
-          v-if="testData.length > 0"
-          @click="currentMode = TableMode.EDIT"
-          :class="{ active: currentMode === TableMode.EDIT }"
-        >
-          редактирования
+          {{ currentMode === TableMode.VIEW ? "просмотра" : "редактирования" }}
         </button>
       </div>
       <div class="header-actions">

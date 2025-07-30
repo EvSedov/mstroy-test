@@ -73,10 +73,9 @@ const getDataPath = (data: any) => {
       (item) => item.id.toString() == current.parent.toString()
     );
     if (!current) break;
-
-    // Если у элемента нет родителя, он корневой
   }
 
+  // Если у элемента нет родителя, он корневой
   if (current.parent === null) {
     path.unshift(current.id.toString());
   }
@@ -172,9 +171,9 @@ onMounted(() => {
   console.log("Объект gridOptions:", gridOptions);
 
   // Очистка при размонтировании
-  // return () => {
-  //   window.removeEventListener("resize", handleResize);
-  // };
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
 });
 </script>
 
