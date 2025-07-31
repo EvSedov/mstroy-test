@@ -37,6 +37,15 @@ npm run preview
 
 # Запуск тестов
 npm run test
+
+## Сборка APK
+
+# Для сборки APK-файла проекта используйте следующую команду:
+cordova run android
+
+# После успешной сборки APK будет доступен по следующему пути:
+/src-cordova/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+
 ```
 
 ## Структура проекта
